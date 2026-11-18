@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}</style>
+<title>Das Schalenmodell</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: links Modell (quadratisch, an Bildschirmhöhe angepasst) + Steckbrief darunter, rechts Periodensystem oder Einstellungen + Legende */
+:root {
+  --bg: #fff5ea;
+  --surface: #ffffff;
+  --fg: #1b2230;
+  --muted: #5e5a62;
+  --line: #ead8c4;
+  --accent: #2f5d8a;
+  --accent-soft: #e3ecf6;
+  --warn: #a8482a;
+  --warn-soft: #fbe9e2;
+  --task: #ffffff;
+  --task-line: #f0c08a;
+  --stage: #ffffff;
+  --proton: #d9534a;
+  --neutron: #9aa3b2;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --stage-w: clamp(300px, calc(100vh - 200px), min(640px, 58vw));
+}
+@supports (height: 100svh) { :root { --stage-w: clamp(300px, calc(100svh - 200px), min(640px, 58vw)); } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1610; --surface: #241e17; --fg: #f0ebe4; --muted: #b0a596; --line: #3b3226;
+    --accent: #86b4e2; --accent-soft: #1f2d3d; --warn: #ec9572; --warn-soft: #3a2219;
+    --task: #241e17; --task-line: #7a5528;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1610; --surface: #241e17; --fg: #f0ebe4; --muted: #b0a596; --line: #3b3226;
+  --accent: #86b4e2; --accent-soft: #1f2d3d; --warn: #ec9572; --warn-soft: #3a2219;
+  --task: #241e17; --task-line: #7a5528;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 24px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 12px; }
+
+.head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.task {
+  display: flex; gap: 10px; align-items: baseline;
+  background: var(--task); border: 1px solid var(--task-line); border-radius: 8px;
+  padding: 6px 12px; font-size: 0.95rem; flex: 1 1 360px; max-width: 720px;
+}
+.task strong { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.task p { margin: 0; }
+
+/* Zeile 1: Bedienleisten (unten bündig), Zeile 2: Periodensystem und Modell beginnen auf gleicher Höhe */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--stage-w));
+  grid-template-areas: "pbar mbar" "pcon mcon";
+  gap: 10px 16px; align-items: start;
+}
+.pbar { grid-area: pbar; align-self: end; }
+.mbar { grid-area: mbar; align-self: end; }
+.pcon { grid-area: pcon; }
+.mcon { grid-area: mcon; }
+.pcon, .mcon { display: grid; gap: 10px; min-width: 0; }
+@media (max-width: 760px) {
+  .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pbar" "pcon" "mbar" "mcon"; }
+}
+
+/* Mit Energiestufenmodell: oben Periodensystem (+ Legende), darunter Schalenmodell | Energiestufenmodell */
+.lcon { grid-area: lcon; min-width: 0; }
+.main.lv { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "pbar pbar" "pcon pcon" "mbar mbar" "mcon lcon"; }
+.main.lv .pcon { grid-template-columns: auto minmax(240px, 1fr); align-items: start; }
+.main.lv .pse { grid-template-columns: 18px 16px repeat(8, minmax(30px, 60px)); }
+@media (max-width: 760px) {
+  .main.lv { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pbar" "pcon" "mbar" "mcon" "lcon"; }
+  .main.lv .pcon { grid-template-columns: minmax(0, 1fr); }
+}
+.lv-box {
+  position: relative; width: 100%; aspect-ratio: 1 / 1;
+  background: var(--stage); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+.lv-box svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.lv-title { position: absolute; right: 12px; top: 10px; display: flex; gap: 6px; align-items: center; font-size: 0.85rem; font-weight: 600; color: #1b2230; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.card-h { display: flex; gap: 6px; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+
+/* Bedienleisten */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.tool-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.tool-label { display: inline-flex; gap: 5px; align-items: center; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 0.88rem; border: 0; background: transparent; color: var(--fg); padding: 6px 11px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.btn { font: inherit; font-size: 0.88rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); padding: 6px 11px; cursor: pointer; }
+.btn:hover, .seg button:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Bühne */
+.stage-box {
+  position: relative; width: 100%; aspect-ratio: 1 / 1;
+  background: var(--stage); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+.stage-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#c2d { touch-action: none; }
+#c3d { cursor: grab; touch-action: none; }
+#c3d.dragging { cursor: grabbing; }
+.stage-help { position: absolute; left: 12px; bottom: 14px; font-size: 0.8rem; color: #4a5568; pointer-events: none; }
+.zoom {
+  position: absolute; right: 8px; bottom: 8px;
+  display: flex; gap: 6px; align-items: center;
+  font-size: 0.82rem; color: #1b2230;
+  background: rgba(255, 255, 255, 0.9); border: 1px solid #d3d9e3; border-radius: 8px; padding: 4px 10px;
+}
+.zoom input { accent-color: #2f5d8a; width: 120px; margin: 0; }
+
+/* Vollbild-Pop-up */
+.full {
+  position: fixed; inset: 0; z-index: 50;
+  background: #ffffff;
+  display: grid; place-items: center;
+  padding: max(56px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.full .stage-box { width: min(calc(100vw - 32px), calc(100vh - 80px)); border: 0; border-radius: 0; }
+.full-name {
+  position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: calc(16px + env(safe-area-inset-left, 0px));
+  font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; color: #1b2230;
+}
+.full-x {
+  position: absolute; top: calc(8px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px));
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid #c3cad6; background: #ffffff; color: #1b2230;
+  font: 400 1.5rem/1 var(--font-body); cursor: pointer;
+}
+.full-x:hover { background: #f1f3f6; }
+
+/* Steckbrief */
+.id { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.id-sym { display: grid; gap: 6px; justify-items: center; }
+.sym {
+  position: relative; width: 72px; height: 90px;
+  border: 2px solid var(--fg); border-radius: 2px;
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 2rem;
+}
+.sym .z, .sym .a { position: absolute; top: 4px; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 400; }
+.sym .z { left: 6px; }
+.sym .a { right: 6px; }
+.id-name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; text-align: center; }
+dl.kv { flex: 1 1 220px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 0.95rem; align-items: center; }
+dl.kv dt { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+dl.kv dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Infofelder */
+.info {
+  flex: none; width: 18px; height: 18px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--accent);
+  background: var(--accent-soft); color: var(--accent);
+  font: italic 700 11px/1 Georgia, "Times New Roman", serif;
+  cursor: pointer; display: inline-grid; place-items: center;
+  writing-mode: horizontal-tb; text-transform: none; letter-spacing: 0;
+}
+.info[aria-expanded="true"] { background: var(--accent); color: var(--surface); }
+#pop {
+  position: absolute; z-index: 20; width: min(280px, calc(100vw - 32px));
+  background: var(--surface); color: var(--fg);
+  border: 1px solid var(--accent); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(20, 30, 50, 0.18);
+  padding: 9px 12px; font-size: 0.9rem;
+}
+#pop h3 { margin: 0 0 3px; font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+#pop p { margin: 0; }
+
+/* Periodensystem */
+.pse-wrap { container-type: inline-size; overflow-x: auto; }
+.pse { display: grid; grid-template-columns: 18px 16px repeat(8, minmax(30px, 74px)); gap: 4px; font-variant-numeric: tabular-nums; }
+.pse .hg { grid-column: 3 / span 8; grid-row: 1; display: flex; gap: 6px; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; }
+.pse .pl {
+  grid-column: 1; grid-row: 3 / span 3;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  display: flex; gap: 6px; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 600;
+}
+.pse .pl .info { transform: rotate(180deg); }
+.pse .num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); display: grid; place-items: center; }
+.tile {
+  font: inherit; color: var(--fg);
+  aspect-ratio: 3 / 4;
+  border: 1px solid #8a94a6; border-radius: 2px;
+  background: var(--surface);
+  padding: 3px 4px;
+  display: grid; grid-template-rows: auto 1fr auto;
+  cursor: pointer; min-width: 0; text-align: center;
+}
+.tile .tn { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.62rem; line-height: 1.1; }
+.tile b { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; align-self: center; }
+.tile .nm { font-size: 0.58rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.tile:hover { border-color: var(--accent); }
+.tile[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.tile[aria-pressed="true"] .nm { color: var(--surface); }
+@container (max-width: 560px) { .tile .nm { display: none; } .tile b { font-size: 1.1rem; } .tile .tn { font-size: 0.56rem; } }
+.hint { font-size: 0.82rem; color: var(--muted); margin: 8px 0 0; }
+
+/* Einstellungen */
+form.card { display: grid; gap: 12px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.lbl { display: flex; gap: 6px; align-items: center; font-size: 0.9rem; font-weight: 600; }
+input[type="number"], select {
+  font: inherit; font-variant-numeric: tabular-nums;
+  width: 100%; padding: 7px 10px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--fg);
+}
+.invalid { border-color: var(--warn) !important; background: var(--warn-soft) !important; }
+.msg { font-size: 0.88rem; border-radius: 6px; padding: 8px 10px; background: var(--warn-soft); color: var(--warn); margin: 0; }
+
+/* 3D-Optionen liegen direkt auf dem (immer hellen) Modellfeld */
+.opts3d {
+  position: absolute; left: 8px; right: 8px; top: 8px;
+  display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  font-size: 0.82rem; color: #1b2230;
+  background: rgba(255, 255, 255, 0.9); border: 1px solid #d3d9e3; border-radius: 8px;
+  padding: 6px 10px;
+}
+.opts3d label { display: flex; gap: 5px; align-items: center; }
+.opts3d input { accent-color: #2f5d8a; margin: 0; }
+.opts3d input[type="range"] { width: 90px; }
+.opts3d button { font: inherit; border: 1px solid #c3cad6; border-radius: 6px; background: #ffffff; color: #1b2230; padding: 3px 8px; cursor: pointer; }
+
+/* Legende */
+.legend { display: grid; gap: 7px; }
+.lg { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 0.92rem; }
+.sw { width: 34px; height: 22px; border-radius: 4px; border: 1px solid #8792a5; background: #ffffff; position: relative; overflow: hidden; }
+.sw i { position: absolute; inset: 0; }
+.sw .e { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: #111111; border: 2px solid; box-sizing: content-box; }
+.lg.off { opacity: 0.45; }
+.particles { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.88rem; color: var(--muted); margin-top: 10px; }
+.particles span { display: inline-flex; gap: 6px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0, 0, 0, 0.35); }
+.note { font-size: 0.84rem; color: var(--muted); margin: 8px 0 0; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>Das Schalenmodell</h1>
+    <div class="task"><strong>Forscherauftrag</strong><p>Lasse dir die Bohrschen Atommodelle verschiedener Elemente anzeigen, indem du die Einstellungen veränderst.</p></div>
+  </header>
+
+  <div class="main">
+      <div class="toolbar mbar">
+        <div class="tool-group">
+          <span class="tool-label">Ansicht</span>
+          <div class="seg" role="group" aria-label="Ansicht">
+            <button type="button" id="v-2d" aria-pressed="true">2D</button>
+            <button type="button" id="v-3d" aria-pressed="false">3D</button>
+          </div>
+        </div>
+        <button type="button" class="btn" id="lv-btn" aria-pressed="false" aria-controls="lcon">Energiestufenmodell</button>
+        <div class="tool-group">
+          <span class="tool-label">Kern <button type="button" class="info" data-info="kern" aria-label="Was ist im Atomkern?">i</button></span>
+          <div class="seg" role="group" aria-label="Darstellung des Kerns" id="nuc-seg">
+            <button type="button" data-v="label" aria-pressed="true">Beschriftung</button>
+            <button type="button" data-v="mix" aria-pressed="false">Teilchen</button>
+          </div>
+        </div>
+        <div class="tool-group">
+          <span class="tool-label">Elektronen <button type="button" class="info" data-info="elektron" aria-label="Was sind Elektronen?">i</button></span>
+          <button type="button" class="btn" id="play" aria-pressed="false">Bewegen</button>
+          <button type="button" class="btn" id="reset">Ausgangszustand</button>
+        </div>
+        <button type="button" class="btn" id="steck-btn" aria-pressed="false" aria-controls="steck">Steckbrief</button>
+        <button type="button" class="btn" id="full-btn">Vollbild</button>
+      </div>
+
+    <div class="mcon">
+      <div class="stage-box" id="stage">
+        <canvas id="c2d" aria-label="Zweidimensionales Schalenmodell"></canvas>
+        <canvas id="c3d" aria-label="Dreidimensionales, drehbares Schalenmodell" hidden></canvas>
+        <div class="opts3d" id="opts3d" hidden>
+          <label for="o-rot"><input type="checkbox" id="o-rot" checked> Drehen</label>
+          <label for="o-cut"><input type="checkbox" id="o-cut" checked> Aufgeschnitten</label>
+          <label for="o-op">Deckkraft <input type="range" id="o-op" min="0.1" max="0.8" step="0.05" value="0.35"></label>
+          <button type="button" id="o-reset">Ansicht zurücksetzen</button>
+        </div>
+        <span class="stage-help" id="stage-help" hidden>Ziehen zum Drehen · zwei Finger zum Zoomen</span>
+        <label class="zoom" for="o-zoom">Zoom <input type="range" id="o-zoom" min="0.6" max="2.5" step="0.05" value="1"></label>
+      </div>
+
+      <section class="card" id="steck" aria-labelledby="h-id" hidden>
+        <h2 class="card-h" id="h-id">Steckbrief</h2>
+        <div class="id">
+          <div class="id-sym">
+            <div class="sym"><span class="z" id="i-z"></span><span id="i-sym"></span><span class="a" id="i-a"></span></div>
+            <div class="id-name" id="i-name"></div>
+          </div>
+          <dl class="kv">
+            <dt>Ordnungszahl <button type="button" class="info" data-info="ordnungszahl" aria-label="Was ist die Ordnungszahl?">i</button></dt><dd id="i-zz"></dd>
+            <dt>Massenzahl <button type="button" class="info" data-info="massenzahl" aria-label="Was ist die Massenzahl?">i</button></dt><dd id="i-aa"></dd>
+            <dt>Atommasse <button type="button" class="info" data-info="atommasse" aria-label="Warum hat die Atommasse Nachkommastellen?">i</button></dt><dd id="i-m"></dd>
+            <dt>Periode <button type="button" class="info" data-info="periode" aria-label="Was ist eine Periode?">i</button></dt><dd id="i-per"></dd>
+            <dt>Hauptgruppe <button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></dt><dd id="i-grp"></dd>
+            <dt>Anzahl der Schalen <button type="button" class="info" data-info="schale" aria-label="Was ist eine Schale?">i</button></dt><dd id="i-shells"></dd>
+            <dt>Außenelektronen <button type="button" class="info" data-info="aussen" aria-label="Was sind Außenelektronen?">i</button></dt><dd id="i-val"></dd>
+          </dl>
+        </div>
+      </section>
+    </div>
+
+    <div class="lcon" id="lcon" hidden>
+      <div class="lv-box">
+        <svg id="levels" viewBox="0 0 400 400" role="img" aria-label="Energiestufenmodell"></svg>
+        <span class="lv-title">Energiestufenmodell <button type="button" class="info" data-info="energie" aria-label="Was zeigt das Energiestufenmodell?">i</button></span>
+      </div>
+    </div>
+
+      <div class="tool-group pbar">
+        <span class="tool-label">Anzeige</span>
+        <div class="seg" role="group" aria-label="Linkes Fenster">
+          <button type="button" id="p-pse" aria-pressed="true">Periodensystem</button>
+          <button type="button" id="p-set" aria-pressed="false">Einstellungen</button>
+        </div>
+      </div>
+
+    <div class="pcon">
+      <section class="card" id="panel-pse" aria-labelledby="h-pse">
+        <h2 class="card-h" id="h-pse">Periodensystem (Ausschnitt)</h2>
+        <div class="pse-wrap">
+          <div class="pse" id="pse">
+            <span class="hg">Hauptgruppe <button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></span>
+          </div>
+        </div>
+        <p class="hint">Klicke auf ein Element. Links oben steht die Ordnungszahl, rechts oben die Massenzahl.</p>
+      </section>
+
+      <form class="card" id="panel-set" autocomplete="off" hidden>
+        <h2 class="card-h">Einstellungen</h2>
+        <div class="field">
+          <span class="lbl"><label for="f-name">Elementname</label></span>
+          <select id="f-name"></select>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="lbl"><label for="f-electrons">Zahl der Elektronen</label><button type="button" class="info" data-info="elektron" aria-label="Was sind Elektronen?">i</button></span>
+            <input type="number" id="f-electrons" min="1" max="18" step="1" value="11" inputmode="numeric">
+          </div>
+          <div class="field">
+            <span class="lbl"><label for="f-z">Ordnungszahl</label><button type="button" class="info" data-info="ordnungszahl" aria-label="Was ist die Ordnungszahl?">i</button></span>
+            <input type="number" id="f-z" min="1" max="18" step="1" value="11" inputmode="numeric">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="lbl"><label for="f-period">Periode</label><button type="button" class="info" data-info="periode" aria-label="Was ist eine Periode?">i</button></span>
+            <select id="f-period"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+          </div>
+          <div class="field">
+            <span class="lbl"><label for="f-group">Hauptgruppe</label><button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></span>
+            <select id="f-group">
+              <option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option>
+              <option value="5">V</option><option value="6">VI</option><option value="7">VII</option><option value="8">VIII</option>
+            </select>
+          </div>
+        </div>
+        <p class="msg" id="msg" role="status" aria-live="polite" hidden></p>
+      </form>
+
+      <section class="card" aria-labelledby="h-lg">
+        <h2 class="card-h" id="h-lg">Legende <button type="button" class="info" data-info="schale" aria-label="Was ist eine Schale?">i</button></h2>
+        <div class="legend" id="legend"></div>
+        <div class="particles">
+          <span><i class="dot" style="background:var(--proton)"></i>Proton p⁺</span>
+          <span><i class="dot" style="background:var(--neutron)"></i>Neutron n</span>
+          <span><i class="dot" style="background:#111111"></i>Elektron e⁻</span>
+        </div>
+        <p class="note" id="note3d" hidden>Im 3D-Modell ist jedes Elektron in der Farbe seiner Schale umrandet.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="full" id="full" role="dialog" aria-modal="true" aria-labelledby="full-name" hidden>
+  <div class="full-name" id="full-name"></div>
+  <button type="button" class="full-x" id="full-x" aria-label="Vollbild schließen">✕</button>
+  <div id="full-slot"></div>
+</div>
+
+<div id="pop" role="dialog" aria-live="polite" hidden><h3 id="pop-h"></h3><p id="pop-t"></p></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  // ---------- Daten ----------
+  // n = Neutronen des häufigsten Isotops, mass = mittlere Atommasse in u
+  const ELEMENTS = [
+    { Z: 1,  sym: "H",  name: "Wasserstoff", period: 1, group: 1, n: 0,  mass: "1,008" },
+    { Z: 2,  sym: "He", name: "Helium",      period: 1, group: 8, n: 2,  mass: "4,003" },
+    { Z: 3,  sym: "Li", name: "Lithium",     period: 2, group: 1, n: 4,  mass: "6,94" },
+    { Z: 4,  sym: "Be", name: "Beryllium",   period: 2, group: 2, n: 5,  mass: "9,012" },
+    { Z: 5,  sym: "B",  name: "Bor",         period: 2, group: 3, n: 6,  mass: "10,81" },
+    { Z: 6,  sym: "C",  name: "Kohlenstoff", period: 2, group: 4, n: 6,  mass: "12,01" },
+    { Z: 7,  sym: "N",  name: "Stickstoff",  period: 2, group: 5, n: 7,  mass: "14,01" },
+    { Z: 8,  sym: "O",  name: "Sauerstoff",  period: 2, group: 6, n: 8,  mass: "16,00" },
+    { Z: 9,  sym: "F",  name: "Fluor",       period: 2, group: 7, n: 10, mass: "19,00" },
+    { Z: 10, sym: "Ne", name: "Neon",        period: 2, group: 8, n: 10, mass: "20,18" },
+    { Z: 11, sym: "Na", name: "Natrium",     period: 3, group: 1, n: 12, mass: "22,99" },
+    { Z: 12, sym: "Mg", name: "Magnesium",   period: 3, group: 2, n: 12, mass: "24,31" },
+    { Z: 13, sym: "Al", name: "Aluminium",   period: 3, group: 3, n: 14, mass: "26,98" },
+    { Z: 14, sym: "Si", name: "Silicium",    period: 3, group: 4, n: 14, mass: "28,09" },
+    { Z: 15, sym: "P",  name: "Phosphor",    period: 3, group: 5, n: 16, mass: "30,97" },
+    { Z: 16, sym: "S",  name: "Schwefel",    period: 3, group: 6, n: 16, mass: "32,06" },
+    { Z: 17, sym: "Cl", name: "Chlor",       period: 3, group: 7, n: 18, mass: "35,45" },
+    { Z: 18, sym: "Ar", name: "Argon",       period: 3, group: 8, n: 22, mass: "39,95" },
+  ];
+  const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
+  // Lückenlos: Kernrand = Innenrand K, Außenrand K = Innenrand L usw.
+  const NUC_R = 28;
+  const SHELLS = [
+    { name: "K", nr: 1, hex: "#FFF2CC", alpha: 1.0,  edge: "#D9A400", r0: NUC_R, r1: 88,  cap: 2 },
+    { name: "L", nr: 2, hex: "#DEEBF7", alpha: 1.0,  edge: "#2E75B6", r0: 88,    r1: 160, cap: 8 },
+    { name: "M", nr: 3, hex: "#DFB8CC", alpha: 0.56, edge: "#A3446F", r0: 160,   r1: 234, cap: 18 },
+  ];
+  // Größte Teilchenzahl im Kern (Argon: 18 p + 22 n) bestimmt die einheitliche Größe von Protonen und Neutronen
+  const A_MAX = Math.max(...ELEMENTS.map((e) => e.Z + e.n));
+  const PROTON = "#d9534a", NEUTRON = "#9aa3b2", BALL = "#f6aaa4";
+  const LABEL_ANG = -Math.PI * 0.75; // Position der Schalenbuchstaben
+
+  const INFO = {
+    ordnungszahl: ["Ordnungszahl", "Die Anzahl der Protonen im Atomkern. Nach ihr sind die Elemente im Periodensystem sortiert."],
+    periode: ["Periode", "Eine waagerechte Zeile im Periodensystem."],
+    hauptgruppe: ["Hauptgruppe", "Eine senkrechte Spalte im Periodensystem."],
+    massenzahl: ["Massenzahl", "Die Anzahl der Protonen und Neutronen im Kern zusammen."],
+    atommasse: ["Atommasse", "Atome eines Elements können unterschiedlich viele Neutronen haben und sind dann verschieden schwer. Die Atommasse ist der Durchschnitt der natürlich vorkommenden Atome. Deshalb hat sie Nachkommastellen."],
+    kern: ["Atomkern", "Enthält Protonen (positiv geladen) und Neutronen (ungeladen)."],
+    elektron: ["Elektronen", "Negativ geladene Teilchen in der Atomhülle. Ein Atom hat gleich viele Elektronen wie Protonen."],
+    schale: ["Schalen", "Bereiche um den Kern, in denen sich die Elektronen aufhalten."],
+    aussen: ["Außenelektronen", "Die Elektronen auf der äußersten Schale."],
+    energie: ["Energiestufenmodell", "Jede Linie ist ein Energieniveau. Die Punkte sind die Elektronen auf diesem Energieniveau."],
+  };
+
+  const state = { el: ELEMENTS[10], variant: "label", mode: "2d", moving: false, t: 0, zoom: 1 };
+  const BASE_DIST = 8; // Kameraabstand bei Zoom 1: das ganze Atom ist sichtbar
+
+  // Zweizeilige Kernbeschriftung als Block exakt um (cx, cy) zentriert
+  function drawNucleusLabel(g, p, n, fs, cx, cy) {
+    g.font = `600 ${fs}px "JetBrains Mono", ui-monospace, monospace`;
+    g.textAlign = "left"; g.textBaseline = "middle";
+    const lines = [[`${p} p⁺`, "#8f1f19"]];
+    if (n) lines.push([`${n} n`, "#333a48"]);
+    const w = Math.max(...lines.map(([t]) => g.measureText(t).width));
+    const lh = fs * 1.2, y0 = cy - ((lines.length - 1) * lh) / 2;
+    lines.forEach(([t, c], i) => { g.fillStyle = c; g.fillText(t, cx - w / 2, y0 + i * lh); });
+  }
+
+  // ---------- Hilfsfunktionen ----------
+  const $ = (id) => document.getElementById(id);
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function distribute(e) {
+    const out = []; let rest = e;
+    for (const s of SHELLS) { const k = Math.min(s.cap, rest); out.push(k); rest -= k; }
+    return out;
+  }
+  function mixedTypes(p, n) {
+    const A = p + n, out = [];
+    for (let i = 0; i < A; i++) out.push(Math.floor(((i + 1) * p) / A) > Math.floor((i * p) / A) ? "p" : "n");
+    return out;
+  }
+  function setPressed(sel, active) { document.querySelectorAll(sel).forEach((b) => b.setAttribute("aria-pressed", String(b === active))); }
+
+  // ---------- Infofelder ----------
+  const pop = $("pop");
+  let popBtn = null;
+  function closePop() { if (popBtn) popBtn.setAttribute("aria-expanded", "false"); popBtn = null; pop.hidden = true; }
+  function openPop(btn) {
+    const [h, t] = INFO[btn.dataset.info];
+    $("pop-h").textContent = h; $("pop-t").textContent = t;
+    pop.hidden = false;
+    const r = btn.getBoundingClientRect();
+    const w = pop.offsetWidth;
+    const left = Math.max(16, Math.min(r.left + window.scrollX - 12, window.scrollX + document.documentElement.clientWidth - w - 16));
+    pop.style.left = left + "px";
+    pop.style.top = (r.bottom + window.scrollY + 8) + "px";
+    popBtn = btn; btn.setAttribute("aria-expanded", "true");
+  }
+  document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".info");
+    if (btn) { ev.preventDefault(); const same = btn === popBtn; closePop(); if (!same) openPop(btn); return; }
+    if (!pop.contains(ev.target)) closePop();
+  });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && popBtn) { const b = popBtn; closePop(); b.focus(); } });
+  window.addEventListener("resize", closePop);
+
+  // ---------- Periodensystem ----------
+  const pse = $("pse");
+  for (let g = 1; g <= 8; g++) { const h = document.createElement("span"); h.className = "num"; h.textContent = ROMAN[g]; h.style.gridRow = "2"; h.style.gridColumn = String(g + 2); pse.appendChild(h); }
+  const pl = document.createElement("span"); pl.className = "pl";
+  pl.innerHTML = 'Periode <button type="button" class="info" data-info="periode" aria-label="Was ist eine Periode?">i</button>';
+  pse.appendChild(pl);
+  for (let p = 1; p <= 3; p++) {
+    const h = document.createElement("span"); h.className = "num"; h.textContent = p; h.style.gridRow = String(p + 2); h.style.gridColumn = "2"; pse.appendChild(h);
+    for (let g = 1; g <= 8; g++) {
+      const el = ELEMENTS.find((e) => e.period === p && e.group === g);
+      if (!el) continue;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "tile"; b.dataset.z = el.Z; b.setAttribute("aria-pressed", "false");
+      b.style.gridRow = String(p + 2); b.style.gridColumn = String(g + 2);
+      b.setAttribute("aria-label", `${el.name}, Ordnungszahl ${el.Z}, Massenzahl ${el.Z + el.n}`);
+      b.innerHTML = `<span class="tn"><span>${el.Z}</span><span>${el.Z + el.n}</span></span><b>${el.sym}</b><span class="nm">${el.name}</span>`;
+      b.addEventListener("click", () => setElement(el));
+      pse.appendChild(b);
+    }
+  }
+  document.querySelectorAll(".info").forEach((b) => b.setAttribute("aria-expanded", "false"));
+
+  // ---------- Einstellungen ----------
+  const fE = $("f-electrons"), fName = $("f-name"), fZ = $("f-z"), fP = $("f-period"), fG = $("f-group"), msg = $("msg");
+  ELEMENTS.forEach((el) => { const o = document.createElement("option"); o.value = el.Z; o.textContent = el.name; fName.appendChild(o); });
+
+  function showMsg(text, fields) {
+    [fE, fZ, fName, fP, fG].forEach((f) => f.classList.remove("invalid"));
+    if (!text) { msg.hidden = true; return; }
+    msg.textContent = text; msg.hidden = false;
+    (fields || []).forEach((f) => f.classList.add("invalid"));
+  }
+  function syncForm(except) {
+    const el = state.el;
+    if (except !== fE) fE.value = el.Z;
+    if (except !== fZ) fZ.value = el.Z;
+    fName.value = el.Z; fP.value = el.period; fG.value = el.group;
+    pse.querySelectorAll(".tile").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.z === el.Z)));
+  }
+  function setElement(el, except) { state.el = el; showMsg(""); syncForm(except); rebuild(); }
+  function byNumber(input, label) {
+    const v = parseInt(input.value, 10);
+    if (Number.isNaN(v)) return;
+    const el = ELEMENTS.find((e) => e.Z === v);
+    if (el) setElement(el, input);
+    else showMsg(`Bitte eine ${label} von 1 bis 18 eingeben.`, [input]);
+  }
+  fE.addEventListener("input", () => byNumber(fE, "Elektronenzahl"));
+  fZ.addEventListener("input", () => byNumber(fZ, "Ordnungszahl"));
+  fName.addEventListener("change", () => setElement(ELEMENTS.find((e) => e.Z === +fName.value)));
+  function onPG() {
+    const p = +fP.value, g = +fG.value;
+    const el = ELEMENTS.find((e) => e.period === p && e.group === g);
+    if (el) { setElement(el); return; }
+    showMsg(`In der ${p}. Periode steht in der ${ROMAN[g]}. Hauptgruppe kein Element.`, [fP, fG]);
+  }
+  fP.addEventListener("change", onPG);
+  fG.addEventListener("change", onPG);
+  $("panel-set").addEventListener("submit", (e) => e.preventDefault());
+
+  function setPanel(which) {
+    $("panel-pse").hidden = which !== "pse";
+    $("panel-set").hidden = which !== "set";
+    setPressed("#p-pse, #p-set", $(which === "pse" ? "p-pse" : "p-set"));
+  }
+  $("p-pse").addEventListener("click", () => setPanel("pse"));
+  $("p-set").addEventListener("click", () => setPanel("set"));
+
+  // ---------- Steckbrief & Legende ----------
+  function updateInfo() {
+    const el = state.el, occ = distribute(el.Z), shown = el.period;
+    $("i-sym").textContent = el.sym;
+    $("i-z").textContent = el.Z;
+    $("i-a").textContent = el.Z + el.n;
+    $("i-name").textContent = el.name;
+    $("i-zz").textContent = el.Z;
+    $("i-aa").textContent = el.Z + el.n;
+    $("i-m").textContent = el.mass + " u";
+    $("i-per").textContent = el.period;
+    $("i-grp").textContent = `${ROMAN[el.group]} (${el.group})`;
+    $("i-shells").textContent = shown;
+    $("i-val").textContent = occ[shown - 1];
+    renderLevels();
+
+    const lg = $("legend"); lg.innerHTML = "";
+    SHELLS.forEach((s, i) => {
+      const row = document.createElement("div");
+      row.className = "lg" + (i < shown ? "" : " off");
+      row.innerHTML = `<span class="sw"><i style="background:${s.hex};opacity:${s.alpha}"></i>${state.mode === "3d" ? `<span class="e" style="border-color:${s.edge}"></span>` : ""}</span>
+        <span><b>${s.name}-Schale</b> = ${s.nr}. Schale (höchstens ${s.cap} Elektronen)</span>`;
+      lg.appendChild(row);
+    });
+  }
+
+  // ---------- Energiestufenmodell (Aufbau wie in der Vorlage) ----------
+  // Füllfarben = Schalenfarben; n = 1 unten, größerer Abstand von n = 1 zu n = 2 als von n = 2 zu n = 3
+  const LV_Y = { 1: 330, 2: 172, 3: 70 };
+  const LV_EDGE = { 1: "#CFA63A", 2: "#6F98C6", 3: "#B16F93" };
+  const INK = "#1b2230", SVG_FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
+  function renderLevels() {
+    const svg = $("levels");
+    const add = (tag, attrs, text) => {
+      const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      if (text != null) e.textContent = text;
+      svg.appendChild(e);
+      return e;
+    };
+    svg.innerHTML = "";
+    const occ = distribute(state.el.Z), shown = state.el.period;
+    for (let n = 1; n <= shown; n++) {
+      const s = SHELLS[n - 1];
+      add("rect", { x: 66, y: LV_Y[n] - 30, width: 290, height: 40, rx: 9, fill: s.hex, "fill-opacity": s.alpha, stroke: LV_EDGE[n], "stroke-width": 2 });
+    }
+    add("line", { x1: 46, y1: 388, x2: 46, y2: 40, stroke: INK, "stroke-width": 2.5 });
+    add("polygon", { points: "46,20 37,42 55,42", fill: INK });
+    add("text", { x: 62, y: 34, fill: INK, "font-family": SVG_FONT, "font-style": "italic", "font-weight": 700, "font-size": 18 }, "E");
+    for (let n = 1; n <= shown; n++) {
+      const y = LV_Y[n], k = occ[n - 1], gap = Math.min(25, 210 / Math.max(k, 1));
+      add("line", { x1: 80, x2: 300, y1: y, y2: y, stroke: INK, "stroke-width": 2.5 });
+      add("text", { x: 312, y: y + 5, fill: INK, "font-family": SVG_FONT, "font-weight": 700, "font-size": 15 }, `n = ${n}`);
+      for (let i = 0; i < k; i++) add("circle", { cx: 190 + (i - (k - 1) / 2) * gap, cy: y - 12, r: 8, fill: "#000000" });
+    }
+    svg.setAttribute("aria-label", `Energiestufenmodell von ${state.el.name}: ` + occ.slice(0, shown).map((k, i) => `${k} Elektronen auf n = ${i + 1}`).join(", "));
+  }
+
+  // ---------- Elektronen: Ruhelage + Bewegung innerhalb ihres Bereichs ----------
+  // Gleichmäßige Anordnung im Raum (größtmögliche Abstände): Linie, Dreieck, Tetraeder, Doppelpyramide, Oktaeder, Würfel
+  const s3 = Math.sqrt(3) / 2;
+  const EVEN3D = {
+    1: [[0, 1, 0]],
+    2: [[0, 1, 0], [0, -1, 0]],
+    3: [[1, 0, 0], [-0.5, s3, 0], [-0.5, -s3, 0]],
+    4: [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]],
+    5: [[0, 1, 0], [0, -1, 0], [1, 0, 0], [-0.5, 0, s3], [-0.5, 0, -s3]],
+    6: [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]],
+    8: [[1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1], [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1]],
+  };
+  let electrons = [];
+  function buildElectrons() {
+    const r = rng(state.el.Z * 97 + 7);
+    const occ = distribute(state.el.Z);
+    const even = true; // Ruhelage: gleichmäßige Abstände
+    electrons = [];
+    occ.forEach((k, s) => {
+      const rot = [r() * 6.28, r() * 6.28, r() * 6.28];
+      for (let i = 0; i < k; i++) {
+        const sector = (2 * Math.PI) / k;
+        const y = 1 - (2 * (i + 0.5)) / k, rad = Math.sqrt(Math.max(0, 1 - y * y)), ph = i * 2.39996;
+        const jitter = (r() - 0.5) * 0.35 * sector, fr = (i % 2 ? 0.7 : 0.3) + (r() - 0.5) * 0.3;
+        electrons.push({
+          shell: s,
+          ang: LABEL_ANG + (i + 0.5) * sector + (even || k === 1 ? 0 : jitter),
+          angAmp: Math.min(0.7, sector * 0.25),
+          f: even ? 0.5 : Math.min(0.85, Math.max(0.15, fr)),
+          w: [0.35 + r() * 0.5, 0.6 + r() * 0.7, 0.4 + r() * 0.6],
+          ph: [r() * 6.28, r() * 6.28, r() * 6.28],
+          dir: even && EVEN3D[k] ? EVEN3D[k][i] : k === 1 ? [0, 1, 0] : [Math.cos(ph) * rad, y, Math.sin(ph) * rad],
+          rot,
+        });
+      }
+    });
+  }
+  // Spiegelt einen Wert zurück in den Bereich 0…1, damit das Elektron die Schale nie verlässt
+  const reflect = (x) => { const y = ((x % 2) + 2) % 2; return y > 1 ? 2 - y : y; };
+  // Bei t = 0 liegt jedes Elektron in seiner Ruhelage; danach wandert es in seinem eigenen Bereich der Schale.
+  function wander(e, t) {
+    if (t === 0) return { f: e.f, da: 0, db: 0 };
+    const osc = (i, k = 1) => Math.sin(e.w[i] * k * t + e.ph[i]) - Math.sin(e.ph[i]);
+    return {
+      f: reflect(e.f + 0.5 * osc(2)),
+      da: e.angAmp * (0.7 * osc(0) + 0.3 * osc(1, 1.7)) * 0.5,
+      db: e.angAmp * osc(1) * 0.5,
+    };
+  }
+
+  // ---------- 2D ----------
+  const c2 = $("c2d"), ctx = c2.getContext("2d"), stage = $("stage");
+  let size = 600, dpr = 1;
+  function resize() {
+    size = stage.clientWidth || 600;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c2.width = Math.round(size * dpr); c2.height = Math.round(size * dpr);
+    if (renderer) { renderer.setPixelRatio(dpr); renderer.setSize(size, size, false); }
+  }
+  new ResizeObserver(resize).observe(stage);
+
+  function flatParticle(x, y, r, color, plus) {
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.lineWidth = Math.max(0.7, r * 0.12); ctx.strokeStyle = "rgba(40,40,50,0.55)"; ctx.stroke();
+    if (plus && r >= 6) {
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = Math.max(1.2, r * 0.18);
+      const a = r * 0.45;
+      ctx.beginPath(); ctx.moveTo(x - a, y); ctx.lineTo(x + a, y); ctx.moveTo(x, y - a); ctx.lineTo(x, y + a); ctx.stroke();
+    }
+  }
+  function vogel(count, c) {
+    const pts = [], ga = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < count; i++) { const rr = c * Math.sqrt(i + (count === 1 ? 0 : 0.5)); pts.push([rr * Math.cos(i * ga), rr * Math.sin(i * ga)]); }
+    return pts;
+  }
+
+  function drawNucleus2D(S) {
+    const p = state.el.Z, n = state.el.n, A = p + n, R = NUC_R * S;
+    if (state.variant === "mix") {
+      const r = R / (1.1 * Math.sqrt(A_MAX) + 1.05); // gleiche Teilchengröße in jedem Atom
+      const pts = vogel(A, r * 1.1), types = mixedTypes(p, n);
+      for (let i = A - 1; i >= 0; i--) flatParticle(pts[i][0], pts[i][1], r, types[i] === "p" ? PROTON : NEUTRON, types[i] === "p");
+      return;
+    }
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2);
+    ctx.fillStyle = BALL; ctx.fill();
+    drawNucleusLabel(ctx, p, n, Math.round(R * 0.36), 0, 0);
+  }
+
+  function draw2D() {
+    const W = c2.width;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, W);
+    const S = ((size / 2 - 12) / SHELLS[2].r1) * dpr * state.zoom;
+    ctx.setTransform(1, 0, 0, 1, W / 2, W / 2);
+    const shown = state.el.period;
+
+    for (let i = 0; i < shown; i++) {
+      const s = SHELLS[i];
+      ctx.beginPath();
+      ctx.arc(0, 0, s.r1 * S, 0, Math.PI * 2);
+      ctx.arc(0, 0, s.r0 * S, 0, Math.PI * 2, true);
+      ctx.globalAlpha = s.alpha; ctx.fillStyle = s.hex; ctx.fill("evenodd"); ctx.globalAlpha = 1;
+    }
+    drawNucleus2D(S);
+    ctx.lineWidth = 1.3 * dpr; ctx.strokeStyle = "rgba(55,65,85,0.65)";
+    for (let i = 0; i < shown; i++) {
+      const s = SHELLS[i];
+      if (i === 0) { ctx.beginPath(); ctx.arc(0, 0, s.r0 * S, 0, Math.PI * 2); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(0, 0, s.r1 * S, 0, Math.PI * 2); ctx.stroke();
+      const mid = ((s.r0 + s.r1) / 2) * S;
+      ctx.font = `600 ${Math.round(13 * S)}px "JetBrains Mono", ui-monospace, monospace`;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "rgba(55,65,85,0.8)";
+      ctx.fillText(s.name, Math.cos(LABEL_ANG) * mid, Math.sin(LABEL_ANG) * mid);
+    }
+
+    const dotR = 6 * S;
+    electrons.forEach((e) => {
+      const s = SHELLS[e.shell], w = wander(e, state.t);
+      const lo = s.r0 + 6 + 3, hi = s.r1 - 6 - 3;
+      const rr = (lo + (hi - lo) * w.f) * S, ang = e.ang + w.da;
+      ctx.beginPath(); ctx.arc(Math.cos(ang) * rr, Math.sin(ang) * rr, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = "#111111"; ctx.fill();
+    });
+  }
+
+  // ---------- 3D ----------
+  let renderer = null, scene, camera, root, atomGroup, e3 = [];
+  const view = { rx: 0.45, ry: -0.5, dist: 7.2, dragging: false, auto: true, cut: true, opacity: 0.35 };
+  const c3 = $("c3d");
+
+  function init3D() {
+    if (renderer) return true;
+    if (!window.THREE) return false;
+    renderer = new THREE.WebGLRenderer({ canvas: c3, antialias: true });
+    renderer.setClearColor(0xffffff, 1);
+    renderer.setPixelRatio(dpr); renderer.setSize(size, size, false);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+    const d = new THREE.DirectionalLight(0xffffff, 0.55); d.position.set(3, 5, 6); scene.add(d);
+    root = new THREE.Group(); scene.add(root);
+
+    c3.addEventListener("wheel", onWheel, { passive: false });
+    return true;
+  }
+
+  function disposeGroup(g) {
+    g.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); }
+    });
+  }
+
+  function pack3D(count, r) {
+    const rand = rng(state.el.Z * 31 + state.el.n);
+    const pts = [];
+    for (let i = 0; i < count; i++) pts.push({ x: (rand() - 0.5) * r, y: (rand() - 0.5) * r, z: (rand() - 0.5) * r });
+    const minD = 2 * r * 0.97;
+    for (let it = 0; it < 260; it++) {
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        a.x *= 0.96; a.y *= 0.96; a.z *= 0.96;
+        for (let j = i + 1; j < pts.length; j++) {
+          const b = pts[j], dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+          const d = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1e-4;
+          if (d < minD) { const k = (minD - d) / d / 2; a.x -= dx * k; a.y -= dy * k; a.z -= dz * k; b.x += dx * k; b.y += dy * k; b.z += dz * k; }
+        }
+      }
+    }
+    return pts;
+  }
+
+  function labelSprite(p, n) {
+    const cv = document.createElement("canvas"); cv.width = 256; cv.height = 256;
+    const g = cv.getContext("2d");
+    drawNucleusLabel(g, p, n, 60, 128, 128);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true }));
+    sp.scale.set(0.62, 0.62, 1); sp.renderOrder = 20;
+    return sp;
+  }
+
+  function build3D() {
+    if (!renderer) return;
+    if (atomGroup) { root.remove(atomGroup); disposeGroup(atomGroup); }
+    atomGroup = new THREE.Group(); root.add(atomGroup);
+    const U = 0.01, shown = state.el.period;
+    const phiLen = view.cut ? Math.PI * 1.5 : Math.PI * 2;
+
+    for (let i = shown - 1; i >= 0; i--) {
+      const s = SHELLS[i];
+      const mat = new THREE.MeshLambertMaterial({ color: s.hex, transparent: true, opacity: view.opacity * (0.6 + 0.4 * s.alpha), side: THREE.DoubleSide, depthWrite: false });
+      const m = new THREE.Mesh(new THREE.SphereGeometry(s.r1 * U, 64, 40, Math.PI * 0.25, phiLen), mat);
+      m.renderOrder = 1 + (shown - i);
+      atomGroup.add(m);
+    }
+    const ring = (rad) => {
+      const pts = [];
+      for (let a = 0; a <= 128; a++) { const t = (a / 128) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(t) * rad * U, 0, Math.sin(t) * rad * U)); }
+      atomGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x3a4456, transparent: true, opacity: 0.45 })));
+    };
+    ring(NUC_R);
+    for (let i = 0; i < shown; i++) ring(SHELLS[i].r1);
+
+    const p = state.el.Z, n = state.el.n, A = p + n, R = NUC_R * U;
+    if (state.variant === "mix") {
+      const r = R / (Math.cbrt(A_MAX / 0.62) + 0.3); // gleiche Teilchengröße in jedem Atom
+      const matP = new THREE.MeshLambertMaterial({ color: PROTON }), matN = new THREE.MeshLambertMaterial({ color: NEUTRON });
+      const types = mixedTypes(p, n);
+      pack3D(A, r).forEach((q, i) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), types[i] === "p" ? matP : matN); m.position.set(q.x, q.y, q.z); atomGroup.add(m); });
+    } else {
+      atomGroup.add(new THREE.Mesh(new THREE.SphereGeometry(R, 40, 28), new THREE.MeshLambertMaterial({ color: BALL })));
+      atomGroup.add(labelSprite(p, n));
+    }
+
+    // Elektronen: schwarz, mit Rand in der kräftigen Farbe ihrer Schale
+    const matE = new THREE.MeshLambertMaterial({ color: 0x111111 });
+    const geoE = new THREE.SphereGeometry(0.07, 20, 14), geoH = new THREE.SphereGeometry(0.105, 20, 14);
+    const hullMats = SHELLS.map((s) => new THREE.MeshBasicMaterial({ color: s.edge, side: THREE.BackSide }));
+    e3 = electrons.map((e) => {
+      const eu = new THREE.Euler(e.rot[0], e.rot[1], e.rot[2]);
+      const dir = new THREE.Vector3(...e.dir).normalize().applyEuler(eu);
+      const tmp = Math.abs(dir.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+      const u = new THREE.Vector3().crossVectors(dir, tmp).normalize();
+      const v = new THREE.Vector3().crossVectors(dir, u).normalize();
+      const g = new THREE.Group();
+      g.add(new THREE.Mesh(geoE, matE));
+      g.add(new THREE.Mesh(geoH, hullMats[e.shell]));
+      atomGroup.add(g);
+      return { e, dir, u, v, g };
+    });
+  }
+
+  const tmpV = window.THREE ? new THREE.Vector3() : null;
+  function draw3D() {
+    if (!renderer) return;
+    if (view.auto && !view.dragging) view.ry += 0.004;
+    root.rotation.set(view.rx, view.ry, 0);
+    camera.position.set(0, 0, BASE_DIST / state.zoom); camera.lookAt(0, 0, 0);
+    const U = 0.01;
+    e3.forEach(({ e, dir, u, v, g }) => {
+      const s = SHELLS[e.shell], w = wander(e, state.t);
+      const lo = s.r0 + 10.5 + 3, hi = s.r1 - 10.5 - 3;
+      const rr = (lo + (hi - lo) * w.f) * U;
+      tmpV.copy(dir).addScaledVector(u, w.da).addScaledVector(v, w.db).normalize().multiplyScalar(rr);
+      g.position.copy(tmpV);
+    });
+    renderer.render(scene, camera);
+  }
+
+  // ---------- Steuerung ----------
+  function rebuild() { buildElectrons(); updateInfo(); build3D(); }
+
+  function setMode(m) {
+    if (m === "3d" && !init3D()) { setPanel("set"); showMsg("Die 3D-Ansicht konnte nicht geladen werden. Bitte lade die Seite neu."); return; }
+    state.mode = m;
+    setPressed("#v-2d, #v-3d", $(m === "2d" ? "v-2d" : "v-3d"));
+    c2.hidden = m !== "2d"; c3.hidden = m !== "3d";
+    $("opts3d").hidden = m !== "3d"; $("stage-help").hidden = m !== "3d"; $("note3d").hidden = m !== "3d";
+    updateInfo();
+    if (m === "3d") { resize(); build3D(); }
+  }
+  $("v-2d").addEventListener("click", () => setMode("2d"));
+  $("v-3d").addEventListener("click", () => setMode("3d"));
+
+  document.querySelectorAll("#nuc-seg button").forEach((b) => b.addEventListener("click", () => {
+    state.variant = b.dataset.v; setPressed("#nuc-seg button", b); build3D();
+  }));
+  const playBtn = $("play");
+  function setMoving(on) {
+    state.moving = on;
+    playBtn.setAttribute("aria-pressed", String(on));
+    playBtn.textContent = on ? "Anhalten" : "Bewegen";
+  }
+  playBtn.addEventListener("click", () => setMoving(!state.moving));
+  // Ausgangszustand: gleichmäßig verteilte, ruhende Elektronen
+  $("reset").addEventListener("click", () => { setMoving(false); state.t = 0; });
+
+  const lvBtn = $("lv-btn");
+  lvBtn.addEventListener("click", () => {
+    const on = $("lcon").hidden;
+    $("lcon").hidden = !on;
+    document.querySelector(".main").classList.toggle("lv", on);
+    lvBtn.setAttribute("aria-pressed", String(on));
+    closePop();
+    if (on) $("lcon").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+
+  const steckBtn = $("steck-btn");
+  steckBtn.addEventListener("click", () => {
+    const open = $("steck").hidden;
+    $("steck").hidden = !open;
+    steckBtn.setAttribute("aria-pressed", String(open));
+    if (open) $("steck").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+
+  $("o-cut").addEventListener("change", (e) => { view.cut = e.target.checked; build3D(); });
+  $("o-rot").addEventListener("change", (e) => { view.auto = e.target.checked; });
+  $("o-op").addEventListener("input", (e) => { view.opacity = +e.target.value; build3D(); });
+  $("o-reset").addEventListener("click", () => { view.rx = 0.45; view.ry = -0.5; setZoom(1); });
+
+  // ---------- Zoom (Regler, Mausrad) ----------
+  const zoomIn = $("o-zoom");
+  function setZoom(z) { state.zoom = Math.max(0.6, Math.min(2.5, z)); zoomIn.value = state.zoom; }
+  function onWheel(ev) { ev.preventDefault(); setZoom(state.zoom * (ev.deltaY > 0 ? 0.93 : 1.08)); }
+  zoomIn.addEventListener("input", () => setZoom(+zoomIn.value));
+  c2.addEventListener("wheel", onWheel, { passive: false });
+
+  // ---------- Touch: zwei Finger zoomen, ein Finger dreht (3D) ----------
+  const pointers = new Map();
+  let pinch = null;
+  const pinchDist = () => { const [a, b] = [...pointers.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+  stage.addEventListener("pointerdown", (ev) => {
+    if (ev.target.closest(".opts3d, .zoom")) return;
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    try { stage.setPointerCapture(ev.pointerId); } catch (e) { /* ignorieren */ }
+    if (pointers.size === 2) { pinch = { d: pinchDist(), z: state.zoom }; view.dragging = false; c3.classList.remove("dragging"); }
+    else if (pointers.size === 1 && state.mode === "3d") { view.dragging = true; c3.classList.add("dragging"); }
+  });
+  stage.addEventListener("pointermove", (ev) => {
+    const p = pointers.get(ev.pointerId);
+    if (!p) return;
+    const dx = ev.clientX - p.x, dy = ev.clientY - p.y;
+    p.x = ev.clientX; p.y = ev.clientY;
+    if (pinch && pointers.size >= 2) { setZoom(pinch.z * (pinchDist() / pinch.d)); return; }
+    if (view.dragging && state.mode === "3d") {
+      view.ry += dx * 0.008; view.rx += dy * 0.008;
+      view.rx = Math.max(-1.5, Math.min(1.5, view.rx));
+    }
+  });
+  const endPointer = (ev) => {
+    pointers.delete(ev.pointerId);
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 0) { view.dragging = false; c3.classList.remove("dragging"); }
+  };
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
+  // Safari: Seitenzoom per Geste auf dem Modell verhindern
+  stage.addEventListener("gesturestart", (ev) => ev.preventDefault());
+  stage.addEventListener("gesturechange", (ev) => ev.preventDefault());
+
+  // ---------- Vollbild-Pop-up ----------
+  const full = $("full"), stageHome = stage.parentNode;
+  function openFull() {
+    $("full-name").textContent = state.el.name;
+    $("full-slot").appendChild(stage);
+    full.hidden = false;
+    document.body.style.overflow = "hidden";
+    closePop();
+    $("full-x").focus();
+    // Echter Vollbildmodus, wo der Browser ihn erlaubt; sonst bleibt es beim Pop-up über der ganzen Seite
+    try {
+      const req = full.requestFullscreen || full.webkitRequestFullscreen;
+      const r = req && req.call(full);
+      if (r && r.catch) r.catch(() => {});
+    } catch (e) { /* nicht verfügbar */ }
+  }
+  function closeFull() {
+    if (full.hidden) return;
+    full.hidden = true;
+    stageHome.insertBefore(stage, $("steck"));
+    document.body.style.overflow = "";
+    const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) { try { const r = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (r && r.catch) r.catch(() => {}); } catch (e) { /* ignorieren */ } }
+    $("full-btn").focus();
+  }
+  $("full-btn").addEventListener("click", openFull);
+  $("full-x").addEventListener("click", closeFull);
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !full.hidden) closeFull(); });
+  const onFsChange = () => { if (!(document.fullscreenElement || document.webkitFullscreenElement)) closeFull(); };
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+
+  // ---------- Schleife ----------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (state.moving) state.t += dt;
+    if (state.mode === "2d") draw2D(); else draw3D();
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  syncForm();
+  rebuild();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => draw2D());
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
