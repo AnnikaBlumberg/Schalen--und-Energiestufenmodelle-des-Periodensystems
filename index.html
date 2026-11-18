@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{color-scheme:light}body{margin:0}img{max-width:100%}</style>
-<title>Das Schalenmodell</title>
+<title>Schalen- und Energiestufenmodelle des Periodensystems</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,30 +77,25 @@ h1 {
 .task strong { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
 .task p { margin: 0; }
 
-/* Zeile 1: Bedienleisten (unten bündig), Zeile 2: Periodensystem und Modell beginnen auf gleicher Höhe */
+/* Oben: Periodensystem | Steckbrief · darunter: Bedienleiste · Schalenmodell | Energiestufenmodell · Legende */
 .main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, var(--stage-w));
-  grid-template-areas: "pbar mbar" "pcon mcon";
-  gap: 10px 16px; align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "pcon pcon" "mbar mbar" "mcon mcon" "leg leg";
+  gap: 12px 16px; align-items: start;
 }
-.pbar { grid-area: pbar; align-self: end; }
-.mbar { grid-area: mbar; align-self: end; }
-.pcon { grid-area: pcon; }
-.mcon { grid-area: mcon; }
-.pcon, .mcon { display: grid; gap: 10px; min-width: 0; }
-@media (max-width: 760px) {
-  .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pbar" "pcon" "mbar" "mcon"; }
-}
-
-/* Mit Energiestufenmodell: oben Periodensystem (+ Legende), darunter Schalenmodell | Energiestufenmodell */
+.main.lv { grid-template-areas: "pcon pcon" "mbar mbar" "mcon lcon" "leg leg"; }
+.main:not(.lv) .mcon { width: 100%; max-width: var(--stage-w); justify-self: center; }
+.pcon { grid-area: pcon; display: grid; grid-template-columns: minmax(0, 600px) minmax(260px, 1fr); gap: 12px 16px; align-items: start; min-width: 0; }
+.mbar { grid-area: mbar; }
+.mcon { grid-area: mcon; display: grid; gap: 10px; min-width: 0; }
 .lcon { grid-area: lcon; min-width: 0; }
-.main.lv { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "pbar pbar" "pcon pcon" "mbar mbar" "mcon lcon"; }
-.main.lv .pcon { grid-template-columns: auto minmax(240px, 1fr); align-items: start; }
-.main.lv .pse { grid-template-columns: 18px 16px repeat(8, minmax(30px, 60px)); }
+.leg { grid-area: leg; }
+.leg .legend { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.pcon .pse { grid-template-columns: 18px 16px repeat(8, minmax(30px, 60px)); }
 @media (max-width: 760px) {
-  .main.lv { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pbar" "pcon" "mbar" "mcon" "lcon"; }
-  .main.lv .pcon { grid-template-columns: minmax(0, 1fr); }
+  .main, .main.lv { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pcon" "mbar" "mcon" "lcon" "leg"; }
+  .pcon { grid-template-columns: minmax(0, 1fr); }
 }
 .lv-box {
   position: relative; width: 100%; aspect-ratio: 1 / 1;
@@ -274,51 +269,23 @@ input[type="number"], select {
 <body>
 <div class="wrap">
   <header class="head">
-    <h1>Das Schalenmodell</h1>
-    <div class="task"><strong>Forscherauftrag</strong><p>Lasse dir die Bohrschen Atommodelle verschiedener Elemente anzeigen, indem du die Einstellungen veränderst.</p></div>
+    <h1>Schalen- und Energiestufenmodelle des Periodensystems</h1>
+    <div class="task"><strong>Forscherauftrag</strong><p>Lasse dir die Schalen- und Energiestufenmodelle verschiedener Elemente anzeigen, indem du sie im Periodensystem auswählst.</p></div>
   </header>
 
-  <div class="main">
-      <div class="toolbar mbar">
-        <div class="tool-group">
-          <span class="tool-label">Ansicht</span>
-          <div class="seg" role="group" aria-label="Ansicht">
-            <button type="button" id="v-2d" aria-pressed="true">2D</button>
-            <button type="button" id="v-3d" aria-pressed="false">3D</button>
+  <div class="main lv">
+    <div class="pcon">
+      <section class="card" id="panel-pse" aria-labelledby="h-pse">
+        <h2 class="card-h" id="h-pse">Periodensystem (Ausschnitt)</h2>
+        <div class="pse-wrap">
+          <div class="pse" id="pse">
+            <span class="hg">Hauptgruppe <button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></span>
           </div>
         </div>
-        <button type="button" class="btn" id="lv-btn" aria-pressed="false" aria-controls="lcon">Energiestufenmodell</button>
-        <div class="tool-group">
-          <span class="tool-label">Kern <button type="button" class="info" data-info="kern" aria-label="Was ist im Atomkern?">i</button></span>
-          <div class="seg" role="group" aria-label="Darstellung des Kerns" id="nuc-seg">
-            <button type="button" data-v="label" aria-pressed="true">Beschriftung</button>
-            <button type="button" data-v="mix" aria-pressed="false">Teilchen</button>
-          </div>
-        </div>
-        <div class="tool-group">
-          <span class="tool-label">Elektronen <button type="button" class="info" data-info="elektron" aria-label="Was sind Elektronen?">i</button></span>
-          <button type="button" class="btn" id="play" aria-pressed="false">Bewegen</button>
-          <button type="button" class="btn" id="reset">Ausgangszustand</button>
-        </div>
-        <button type="button" class="btn" id="steck-btn" aria-pressed="false" aria-controls="steck">Steckbrief</button>
-        <button type="button" class="btn" id="full-btn">Vollbild</button>
-      </div>
+        <p class="hint">Klicke auf ein Element. Links oben steht die Ordnungszahl, rechts oben die Massenzahl.</p>
+      </section>
 
-    <div class="mcon">
-      <div class="stage-box" id="stage">
-        <canvas id="c2d" aria-label="Zweidimensionales Schalenmodell"></canvas>
-        <canvas id="c3d" aria-label="Dreidimensionales, drehbares Schalenmodell" hidden></canvas>
-        <div class="opts3d" id="opts3d" hidden>
-          <label for="o-rot"><input type="checkbox" id="o-rot" checked> Drehen</label>
-          <label for="o-cut"><input type="checkbox" id="o-cut" checked> Aufgeschnitten</label>
-          <label for="o-op">Deckkraft <input type="range" id="o-op" min="0.1" max="0.8" step="0.05" value="0.35"></label>
-          <button type="button" id="o-reset">Ansicht zurücksetzen</button>
-        </div>
-        <span class="stage-help" id="stage-help" hidden>Ziehen zum Drehen · zwei Finger zum Zoomen</span>
-        <label class="zoom" for="o-zoom">Zoom <input type="range" id="o-zoom" min="0.6" max="2.5" step="0.05" value="1"></label>
-      </div>
-
-      <section class="card" id="steck" aria-labelledby="h-id" hidden>
+      <section class="card" id="steck" aria-labelledby="h-id">
         <h2 class="card-h" id="h-id">Steckbrief</h2>
         <div class="id">
           <div class="id-sym">
@@ -338,75 +305,62 @@ input[type="number"], select {
       </section>
     </div>
 
-    <div class="lcon" id="lcon" hidden>
+    <div class="toolbar mbar">
+      <div class="tool-group">
+        <span class="tool-label">Ansicht</span>
+        <div class="seg" role="group" aria-label="Ansicht">
+          <button type="button" id="v-2d" aria-pressed="true">2D</button>
+          <button type="button" id="v-3d" aria-pressed="false">3D</button>
+        </div>
+      </div>
+      <button type="button" class="btn" id="lv-btn" aria-pressed="true" aria-controls="lcon">Energiestufenmodell</button>
+      <div class="tool-group">
+        <span class="tool-label">Kern <button type="button" class="info" data-info="kern" aria-label="Was ist im Atomkern?">i</button></span>
+        <div class="seg" role="group" aria-label="Darstellung des Kerns" id="nuc-seg">
+          <button type="button" data-v="label" aria-pressed="true">Beschriftung</button>
+          <button type="button" data-v="mix" aria-pressed="false">Teilchen</button>
+        </div>
+      </div>
+      <div class="tool-group">
+        <span class="tool-label">Elektronen <button type="button" class="info" data-info="elektron" aria-label="Was sind Elektronen?">i</button></span>
+        <button type="button" class="btn" id="play" aria-pressed="false">Bewegen</button>
+        <button type="button" class="btn" id="reset">Ausgangszustand</button>
+      </div>
+      <button type="button" class="btn" id="full-btn">Vollbild</button>
+    </div>
+
+    <div class="mcon">
+      <div class="stage-box" id="stage">
+        <canvas id="c2d" aria-label="Zweidimensionales Schalenmodell"></canvas>
+        <canvas id="c3d" aria-label="Dreidimensionales, drehbares Schalenmodell" hidden></canvas>
+        <div class="opts3d" id="opts3d" hidden>
+          <label for="o-rot"><input type="checkbox" id="o-rot" checked> Drehen</label>
+          <label for="o-cut"><input type="checkbox" id="o-cut" checked> Aufgeschnitten</label>
+          <label for="o-op">Deckkraft <input type="range" id="o-op" min="0.1" max="0.8" step="0.05" value="0.35"></label>
+          <button type="button" id="o-reset">Ansicht zurücksetzen</button>
+        </div>
+        <span class="stage-help" id="stage-help" hidden>Ziehen zum Drehen · zwei Finger zum Zoomen</span>
+        <label class="zoom" for="o-zoom">Zoom <input type="range" id="o-zoom" min="0.6" max="2.5" step="0.05" value="1"></label>
+      </div>
+    </div>
+
+    <div class="lcon" id="lcon">
       <div class="lv-box">
         <svg id="levels" viewBox="0 0 400 400" role="img" aria-label="Energiestufenmodell"></svg>
         <span class="lv-title">Energiestufenmodell <button type="button" class="info" data-info="energie" aria-label="Was zeigt das Energiestufenmodell?">i</button></span>
       </div>
     </div>
 
-      <div class="tool-group pbar">
-        <span class="tool-label">Anzeige</span>
-        <div class="seg" role="group" aria-label="Linkes Fenster">
-          <button type="button" id="p-pse" aria-pressed="true">Periodensystem</button>
-          <button type="button" id="p-set" aria-pressed="false">Einstellungen</button>
-        </div>
+    <section class="card leg" aria-labelledby="h-lg">
+      <h2 class="card-h" id="h-lg">Legende <button type="button" class="info" data-info="schale" aria-label="Was ist eine Schale?">i</button></h2>
+      <div class="legend" id="legend"></div>
+      <div class="particles">
+        <span><i class="dot" style="background:var(--proton)"></i>Proton p⁺</span>
+        <span><i class="dot" style="background:var(--neutron)"></i>Neutron n</span>
+        <span><i class="dot" style="background:#111111"></i>Elektron e⁻</span>
       </div>
-
-    <div class="pcon">
-      <section class="card" id="panel-pse" aria-labelledby="h-pse">
-        <h2 class="card-h" id="h-pse">Periodensystem (Ausschnitt)</h2>
-        <div class="pse-wrap">
-          <div class="pse" id="pse">
-            <span class="hg">Hauptgruppe <button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></span>
-          </div>
-        </div>
-        <p class="hint">Klicke auf ein Element. Links oben steht die Ordnungszahl, rechts oben die Massenzahl.</p>
-      </section>
-
-      <form class="card" id="panel-set" autocomplete="off" hidden>
-        <h2 class="card-h">Einstellungen</h2>
-        <div class="field">
-          <span class="lbl"><label for="f-name">Elementname</label></span>
-          <select id="f-name"></select>
-        </div>
-        <div class="row">
-          <div class="field">
-            <span class="lbl"><label for="f-electrons">Zahl der Elektronen</label><button type="button" class="info" data-info="elektron" aria-label="Was sind Elektronen?">i</button></span>
-            <input type="number" id="f-electrons" min="1" max="18" step="1" value="11" inputmode="numeric">
-          </div>
-          <div class="field">
-            <span class="lbl"><label for="f-z">Ordnungszahl</label><button type="button" class="info" data-info="ordnungszahl" aria-label="Was ist die Ordnungszahl?">i</button></span>
-            <input type="number" id="f-z" min="1" max="18" step="1" value="11" inputmode="numeric">
-          </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <span class="lbl"><label for="f-period">Periode</label><button type="button" class="info" data-info="periode" aria-label="Was ist eine Periode?">i</button></span>
-            <select id="f-period"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
-          </div>
-          <div class="field">
-            <span class="lbl"><label for="f-group">Hauptgruppe</label><button type="button" class="info" data-info="hauptgruppe" aria-label="Was ist eine Hauptgruppe?">i</button></span>
-            <select id="f-group">
-              <option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option>
-              <option value="5">V</option><option value="6">VI</option><option value="7">VII</option><option value="8">VIII</option>
-            </select>
-          </div>
-        </div>
-        <p class="msg" id="msg" role="status" aria-live="polite" hidden></p>
-      </form>
-
-      <section class="card" aria-labelledby="h-lg">
-        <h2 class="card-h" id="h-lg">Legende <button type="button" class="info" data-info="schale" aria-label="Was ist eine Schale?">i</button></h2>
-        <div class="legend" id="legend"></div>
-        <div class="particles">
-          <span><i class="dot" style="background:var(--proton)"></i>Proton p⁺</span>
-          <span><i class="dot" style="background:var(--neutron)"></i>Neutron n</span>
-          <span><i class="dot" style="background:#111111"></i>Elektron e⁻</span>
-        </div>
-        <p class="note" id="note3d" hidden>Im 3D-Modell ist jedes Elektron in der Farbe seiner Schale umrandet.</p>
-      </section>
-    </div>
+      <p class="note" id="note3d" hidden>Im 3D-Modell ist jedes Elektron in der Farbe seiner Schale umrandet.</p>
+    </section>
   </div>
 </div>
 
@@ -552,51 +506,11 @@ input[type="number"], select {
   }
   document.querySelectorAll(".info").forEach((b) => b.setAttribute("aria-expanded", "false"));
 
-  // ---------- Einstellungen ----------
-  const fE = $("f-electrons"), fName = $("f-name"), fZ = $("f-z"), fP = $("f-period"), fG = $("f-group"), msg = $("msg");
-  ELEMENTS.forEach((el) => { const o = document.createElement("option"); o.value = el.Z; o.textContent = el.name; fName.appendChild(o); });
-
-  function showMsg(text, fields) {
-    [fE, fZ, fName, fP, fG].forEach((f) => f.classList.remove("invalid"));
-    if (!text) { msg.hidden = true; return; }
-    msg.textContent = text; msg.hidden = false;
-    (fields || []).forEach((f) => f.classList.add("invalid"));
+  // ---------- Auswahl über das Periodensystem ----------
+  function syncForm() {
+    pse.querySelectorAll(".tile").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.z === state.el.Z)));
   }
-  function syncForm(except) {
-    const el = state.el;
-    if (except !== fE) fE.value = el.Z;
-    if (except !== fZ) fZ.value = el.Z;
-    fName.value = el.Z; fP.value = el.period; fG.value = el.group;
-    pse.querySelectorAll(".tile").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.z === el.Z)));
-  }
-  function setElement(el, except) { state.el = el; showMsg(""); syncForm(except); rebuild(); }
-  function byNumber(input, label) {
-    const v = parseInt(input.value, 10);
-    if (Number.isNaN(v)) return;
-    const el = ELEMENTS.find((e) => e.Z === v);
-    if (el) setElement(el, input);
-    else showMsg(`Bitte eine ${label} von 1 bis 18 eingeben.`, [input]);
-  }
-  fE.addEventListener("input", () => byNumber(fE, "Elektronenzahl"));
-  fZ.addEventListener("input", () => byNumber(fZ, "Ordnungszahl"));
-  fName.addEventListener("change", () => setElement(ELEMENTS.find((e) => e.Z === +fName.value)));
-  function onPG() {
-    const p = +fP.value, g = +fG.value;
-    const el = ELEMENTS.find((e) => e.period === p && e.group === g);
-    if (el) { setElement(el); return; }
-    showMsg(`In der ${p}. Periode steht in der ${ROMAN[g]}. Hauptgruppe kein Element.`, [fP, fG]);
-  }
-  fP.addEventListener("change", onPG);
-  fG.addEventListener("change", onPG);
-  $("panel-set").addEventListener("submit", (e) => e.preventDefault());
-
-  function setPanel(which) {
-    $("panel-pse").hidden = which !== "pse";
-    $("panel-set").hidden = which !== "set";
-    setPressed("#p-pse, #p-set", $(which === "pse" ? "p-pse" : "p-set"));
-  }
-  $("p-pse").addEventListener("click", () => setPanel("pse"));
-  $("p-set").addEventListener("click", () => setPanel("set"));
+  function setElement(el) { state.el = el; syncForm(); rebuild(); }
 
   // ---------- Steckbrief & Legende ----------
   function updateInfo() {
@@ -911,7 +825,7 @@ input[type="number"], select {
   function rebuild() { buildElectrons(); updateInfo(); build3D(); }
 
   function setMode(m) {
-    if (m === "3d" && !init3D()) { setPanel("set"); showMsg("Die 3D-Ansicht konnte nicht geladen werden. Bitte lade die Seite neu."); return; }
+    if (m === "3d" && !init3D()) { const h = $("stage-help"); h.textContent = "Die 3D-Ansicht konnte nicht geladen werden. Bitte lade die Seite neu."; h.hidden = false; return; }
     state.mode = m;
     setPressed("#v-2d, #v-3d", $(m === "2d" ? "v-2d" : "v-3d"));
     c2.hidden = m !== "2d"; c3.hidden = m !== "3d";
@@ -945,13 +859,6 @@ input[type="number"], select {
     if (on) $("lcon").scrollIntoView({ block: "nearest", behavior: "smooth" });
   });
 
-  const steckBtn = $("steck-btn");
-  steckBtn.addEventListener("click", () => {
-    const open = $("steck").hidden;
-    $("steck").hidden = !open;
-    steckBtn.setAttribute("aria-pressed", String(open));
-    if (open) $("steck").scrollIntoView({ block: "nearest", behavior: "smooth" });
-  });
 
   $("o-cut").addEventListener("change", (e) => { view.cut = e.target.checked; build3D(); });
   $("o-rot").addEventListener("change", (e) => { view.auto = e.target.checked; });
@@ -1017,7 +924,7 @@ input[type="number"], select {
   function closeFull() {
     if (full.hidden) return;
     full.hidden = true;
-    stageHome.insertBefore(stage, $("steck"));
+    stageHome.prepend(stage);
     document.body.style.overflow = "";
     const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
     if (fsEl) { try { const r = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (r && r.catch) r.catch(() => {}); } catch (e) { /* ignorieren */ } }
